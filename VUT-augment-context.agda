@@ -125,11 +125,11 @@ mutual
     Π₀ : {Γ : Context} → (A : Type Γ)
       → (B : Type (Γ ,, (λ γ → unqType γ A)))
       → Type Γ
-    _⇒_ : ∀{Γ} → (A B : Type Γ) → Type Γ
+    _⇒_ : ∀{Γ} → (A B : Type Γ) → Type Γ -- redudant
     -- Π₁ : {Γ : Context} → (A : Type Γ (λ γ → Set₁))
     --   → (B : V (Γ ,, (λ γ → unqType γ A)) (λ γ → Set₁))
     --   → Type Γ (λ γ → Set₁)
-    EBool : ∀{Γ} → Type Γ
+    EBool : ∀{Γ} → Type Γ -- TODO: remove this after increase type levels
     TApp : ∀{Γ A} → Type (Γ ,, A) → V Γ A → Type Γ
     -- Π₀ : {Γ : Context} → (A : Type Γ (λ γ → Set₀))
     --   → (B : V (Γ ,, (λ γ → unqType γ A)) (λ γ → Set₀))
@@ -206,7 +206,7 @@ ua {A} {B} (TApp P e) eq γA γB x
   = ua P eq (γA , unqV ((tt , A) , γA) e) (γB , unqV ((tt , B) , γB) e) x
 ua (Var (inj₁ same)) eq γA γB x = proj₁ eq x
 ua (Var (inj₂ same)) eq γA γB x = {!   !}
-ua (Var (inj₂ (next y))) eq γA γB x = {!   !}
+ua (Var (inj₂ (next icx))) eq γA γB x = ?
 
 -- TODO: IDEA: doesn't leibniz equality imply PropositionalEquality
 --  obviously in DSL, not agda itelf because agda can't prove univalence
@@ -258,59 +258,3 @@ test2 = refl
 -- TODO: IDEA: maybe make so that the things in Context2 DONT depend on
 -- the things in COntext1?
 -- Check Π case!!!!!!!!!!
-
--- P : Set → Set
--- P T = (n : ℕ) → pow T n
-
-  {-
--- ua2 : ∀{A B} → {e : CtxExt (∅ , λ _ → Set)}
---   → (P : Type (extToCtx e)) → A ≃ B
---   → (γA : ctxExtType e (tt , A))
---   → (γB : ctxExtType e (tt , B))
---   → unqType (pack e (tt , A) γA ) P
---   → unqType (pack e (tt , B) γB ) P
--- ua2 {_} {_} {e} (Π₀ A B) eq γA γB x
---   = λ a → ua2 {_} {_} {cons e {!   !} } B eq {! γA  !} {!   !} {!   !}
--- ua2 (A ⇒ B) eq γA γB x = λ a → ua2 B eq γA γB (x (ua2 A (inv eq) γB γA a))
--- ua2 EBool eq γA γB x = x
--- ua2 (TApp P x₁) eq γA γB x = {!   !}
-
--- Nothing interesting can be done with only one type level
--- but lets just see what happens?
--- TODO: later rename Type to Type₁, and make Type₂
-ua : ∀{A B Γ} → (P : Type (Γ , (λ _ → Set))) → A ≃ B
-  → (γ : ctxType Γ)
-  → unqType (γ , A) P → unqType (γ , B) P
-ua (Π₀ A B) eq γ x = λ a → {! ua B eq   !}
-ua (TApp T v) eq γ x = {! rename T  !}
--- TODO: the issue is that B's context is no longer of the right form.
--- the solution is to make contexts not be strictly a list, so that its easy
--- when something is appended, a special element can still be easily accessed.
-
-ua (A ⇒ B) eq γ x = λ a → ua B eq γ (x (ua A (inv eq) γ a))
-ua EBool eq γ b = b
--- (b : Bool) → if b then Bool else (Bool → Bool)
--- TODO: add if to Val so that interesting dependent types exist
-
--- What normal forms actually exist in types?
--- (b : Bool)
--- IDEA: we need ANY expression of type Set to be in Type rather than Value
--- Therefore, Type might need its own App or something?
--- So,    AppT : Type (Γ , A) → Value Γ A → Type Γ
-
-------------------------------------------------------------------
-{-
-TODAY's dastardly scheme: (rethought out) (now for tommorow...)
-
-1) Make ua so that it can input any Γ whose FIRST element is a Set.
-  Derive the necessary algebraic structures to make this work.
-
-2) Fill the the Π case of ua
-
-3) Make a special App constructor for Type. Think about if this creates any
-  duplication or problems. Think about how 4) will work
-
-4) Fill in the App case of ua
--}
-------------------------------------------------------------------
--}
